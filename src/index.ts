@@ -1,3 +1,3 @@
-export const run = (): string => {
-    return 'Hey! This is typescript boilerplate for publishing node packages';
-}
+export * from './interfaces';
+export * from './decimal';
+export { NumeralSystem, getNumeralSystem } from './numeral-systems';

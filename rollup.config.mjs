@@ -1,41 +1,47 @@
+import typescript from '@rollup/plugin-typescript';
+import del from 'rollup-plugin-delete';
 import dts from 'rollup-plugin-dts';
-import esbuild from 'rollup-plugin-esbuild';
+import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+
+const input = 'src/index.ts';
 
 export default [
   {
-    input: `src/index.ts`,
-    plugins: [esbuild()],
+    input,
+    plugins: [
+      del({
+        targets: ['./dist/'],
+      }),
+      peerDepsExternal(),
+      typescript(),
+    ],
     output: [
       {
-        dir: 'dist/esm',
+        file: 'dist/esm/index.mjs',
         format: 'es',
         sourcemap: true,
-        entryFileNames: '[name].mjs',
-        preserveModules: true,
       },
       {
-        dir: 'dist/cjs',
+        file: 'dist/cjs/index.cjs',
         format: 'cjs',
         interop: 'auto',
         sourcemap: true,
-        entryFileNames: '[name].cjs',
-        preserveModules: true,
       },
     ]
   },
   {
-    input: `src/index.ts`,
+    input,
     plugins: [dts()],
     output: [
       {
-        dir: 'dist/esm',
+        file: 'dist/esm/index.d.ts',
         format: 'es',
       },
       {
-        dir: 'dist/cjs',
+        file: 'dist/cjs/index.d.ts',
         format: 'cjs',
         interop: 'auto',
       },
     ]
   }
-]
+];
