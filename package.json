@@ -1,7 +1,7 @@
 {
   "name": "big-num",
   "version": "1.0.0",
-  "description": "",
+  "description": "Handles the basic mathematics operation between 2 numbers. It also support multiple numeral system like base 8, 10, 16 and 36",
   "files": [
     "dist",
     "Bignum.md",
