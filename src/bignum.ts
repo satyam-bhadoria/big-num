@@ -1,8 +1,8 @@
-import { INumeralSystem, IDecimal } from './interfaces';
+import { INumeralSystem, IBignum } from './interfaces';
 import { getNumeralSystem, NumeralSystem } from './numeral-systems';
 import { Helper } from './utils/helper';
 
-export class Decimal implements IDecimal {
+export class Bignum implements IBignum {
   static _system: INumeralSystem = NumeralSystem.Base10;
   static useNumeralSystem(sys: string | INumeralSystem) {
     if (!sys) {
@@ -11,7 +11,7 @@ export class Decimal implements IDecimal {
     this._system = typeof sys === 'string' ? getNumeralSystem(sys) : sys;
   }
 
-  static parse(numberStr: string, system: INumeralSystem = this._system): Decimal {
+  static parse(numberStr: string, system: INumeralSystem = this._system): Bignum {
     // eslint-disable-next-line prefer-const
     let { sign, remainingStr: str } = Helper.extractSignAndNumber(system, numberStr);
     let deci = 0;
@@ -20,29 +20,29 @@ export class Decimal implements IDecimal {
       str = str.substring(0, deciIndex) + str.substring(deciIndex + 1);
       deci = str.length - deciIndex;
     }
-    return Decimal.#construct(system, sign, Helper.convertToInteger(system, str), deci);
+    return Bignum.#construct(system, sign, Helper.convertToInteger(system, str), deci);
   }
 
-  static half(system: INumeralSystem = this._system): Decimal {
+  static half(system: INumeralSystem = this._system): Bignum {
     const mid: number = system.getBase() / 2;
-    return new Decimal(system, 0, [mid], 1);
+    return new Bignum(system, 0, [mid], 1);
   }
 
-  static zero(system: INumeralSystem = this._system): Decimal {
-    return new Decimal(system, 0, [0], 0);
+  static zero(system: INumeralSystem = this._system): Bignum {
+    return new Bignum(system, 0, [0], 0);
   }
 
-  static one(system: INumeralSystem = this._system, sign: number = 1): Decimal {
-    return new Decimal(system, sign, [1], 0);
+  static one(system: INumeralSystem = this._system, sign: number = 1): Bignum {
+    return new Bignum(system, sign, [1], 0);
   }
 
-  static #construct(sys: INumeralSystem, sign: number, intArr: number[], deci: number = 0): Decimal {
+  static #construct(sys: INumeralSystem, sign: number, intArr: number[], deci: number = 0): Bignum {
     // remove intial 0's before decimal
     let actualLength = intArr.length;
     while (actualLength > 0 && intArr[actualLength - 1] === 0) --actualLength;
 
     if (actualLength === 0) {
-      return Decimal.zero(sys);
+      return Bignum.zero(sys);
     }
     if (actualLength !== intArr.length) {
       intArr = intArr.slice(0, actualLength);
@@ -55,18 +55,18 @@ export class Decimal implements IDecimal {
     intArr = intArr.slice(index);
     deci = deci - index;
 
-    return new Decimal(sys, sign, intArr, deci);
+    return new Bignum(sys, sign, intArr, deci);
   }
 
   sys: INumeralSystem;
   sign: number;
   int: number[];
-  deci: number;
-  constructor(system: INumeralSystem, sign: number, intArr: number[], deci: number) {
+  scale: number;
+  constructor(system: INumeralSystem, sign: number, intArr: number[], scale: number) {
     this.sys = system;
     this.sign = sign >= 0 ? 0 : -1;
     this.int = intArr;
-    this.deci = deci;
+    this.scale = scale;
     Object.freeze(this);
   }
 
@@ -81,11 +81,11 @@ export class Decimal implements IDecimal {
 
     let str = Helper.convertToChar(this.sys, this.int);
 
-    if (this.deci > 0) {
+    if (this.scale > 0) {
       const charZero = this.sys.toChar(0);
-      while (str.length < this.deci + 1) str = charZero + str;
+      while (str.length < this.scale + 1) str = charZero + str;
 
-      const deciIndex = str.length - this.deci;
+      const deciIndex = str.length - this.scale;
       str = str.substring(0, deciIndex) + this.sys.getRadixPointChar() + str.substring(deciIndex);
     }
 
@@ -108,32 +108,32 @@ export class Decimal implements IDecimal {
     return this.sign >= 0 && this.isOneish();
   }
 
-  negate(): Decimal {
-    return this.isZero() ? this : Decimal.#construct(this.sys, this.sign >= 0 ? -1 : 0, this.int, this.deci);
+  negate(): Bignum {
+    return this.isZero() ? this : Bignum.#construct(this.sys, this.sign >= 0 ? -1 : 0, this.int, this.scale);
   }
 
-  convertTo(toSys: INumeralSystem): Decimal {
+  convertTo(toSys: INumeralSystem): Bignum {
     if (this.sys.getBase() === toSys.getBase()) {
       return this;
     }
     let divideBy: number[] = [];
-    if (this.deci > 0) {
-      divideBy = Helper.convertFromOneBaseToAnother(Helper.shiftLeft([1], this.deci), this.sys, toSys);
+    if (this.scale > 0) {
+      divideBy = Helper.convertFromOneBaseToAnother(Helper.shiftLeft([1], this.scale), this.sys, toSys);
     }
     let convertedIntArr = Helper.convertFromOneBaseToAnother(this.int, this.sys, toSys);
     if (divideBy.length > 0) {
-      convertedIntArr = Helper.divideBy(toSys, Helper.shiftLeft(convertedIntArr, this.deci), divideBy).quotient;
+      convertedIntArr = Helper.divideBy(toSys, Helper.shiftLeft(convertedIntArr, this.scale), divideBy).quotient;
     }
-    return Decimal.#construct(toSys, this.sign, convertedIntArr, this.deci);
+    return Bignum.#construct(toSys, this.sign, convertedIntArr, this.scale);
   }
 
-  validateSystem(other: Decimal) {
+  validateSystem(other: Bignum) {
     if (this.sys.getBase() !== other.sys.getBase()) {
       throw new Error('Expected numbers of same numeral sys');
     }
   }
 
-  add(other: Decimal): Decimal {
+  add(other: Bignum): Bignum {
     this.validateSystem(other);
     if (this.isZero()) {
       return other;
@@ -144,17 +144,17 @@ export class Decimal implements IDecimal {
 
     if (this.sign !== other.sign) {
       if (this.sign < 0) {
-        const { diff: result, deci, sign } = Helper.subtractDecimal(this.negate(), other);
-        return Decimal.#construct(this.sys, -sign, result, deci);
+        const { diff: result, deci, sign } = Helper.subtractNumber(this.negate(), other);
+        return Bignum.#construct(this.sys, -sign, result, deci);
       }
-      const { diff: result, deci, sign } = Helper.subtractDecimal(this, other.negate());
-      return Decimal.#construct(this.sys, sign, result, deci);
+      const { diff: result, deci, sign } = Helper.subtractNumber(this, other.negate());
+      return Bignum.#construct(this.sys, sign, result, deci);
     }
-    const { sum: result, deci } = Helper.addDecimal(this, other);
-    return Decimal.#construct(this.sys, this.sign, result, deci);
+    const { sum: result, deci } = Helper.addNumber(this, other);
+    return Bignum.#construct(this.sys, this.sign, result, deci);
   }
 
-  subtract(other: Decimal): Decimal {
+  subtract(other: Bignum): Bignum {
     this.validateSystem(other);
     if (this.isZero()) {
       return other.negate();
@@ -165,15 +165,15 @@ export class Decimal implements IDecimal {
 
     if (this.sign !== other.sign) {
       if (this.sign < 0) {
-        const { sum: result, deci } = Helper.addDecimal(this.negate(), other);
-        return Decimal.#construct(this.sys, -1, result, deci);
+        const { sum: result, deci } = Helper.addNumber(this.negate(), other);
+        return Bignum.#construct(this.sys, -1, result, deci);
       }
-      const { sum: result, deci } = Helper.addDecimal(this, other.negate());
-      return Decimal.#construct(this.sys, 0, result, deci);
+      const { sum: result, deci } = Helper.addNumber(this, other.negate());
+      return Bignum.#construct(this.sys, 0, result, deci);
     }
-    const { diff: result, deci, sign } = Helper.subtractDecimal(this, other);
-    return Decimal.#construct(this.sys, sign, result, deci);
-    // let deci = this.deci;
+    const { diff: result, deci, sign } = Helper.subtractNumber(this, other);
+    return Bignum.#construct(this.sys, sign, result, deci);
+    // let deci = this.scale;
     // let num1 = this.int;
     // let num2 = other.int;
     // if (deci < other.deci) {
@@ -185,15 +185,15 @@ export class Decimal implements IDecimal {
 
     // const cmp = Helper.compareArray(num1, num2);
     // if (cmp === 0) {
-    //   return Decimal.zero(this.sys);
+    //   return Bignum.zero(this.sys);
     // }
 
     // return cmp < 0
-    //   ? Decimal.#construct(this.sys, this.sign === -1 ? 1 : -1, Helper.subtract(this.sys, num2, num1), deci)
-    //   : Decimal.#construct(this.sys, this.sign === -1 ? -1 : 1, Helper.subtract(this.sys, num1, num2), deci);
+    //   ? Bignum.#construct(this.sys, this.sign === -1 ? 1 : -1, Helper.subtract(this.sys, num2, num1), deci)
+    //   : Bignum.#construct(this.sys, this.sign === -1 ? -1 : 1, Helper.subtract(this.sys, num1, num2), deci);
   }
 
-  multiply(other: Decimal): Decimal {
+  multiply(other: Bignum): Bignum {
     this.validateSystem(other);
     if (this.isZero()) {
       return this;
@@ -202,47 +202,47 @@ export class Decimal implements IDecimal {
       return other;
     }
 
-    const deci = this.deci + other.deci;
+    const deci = this.scale + other.scale;
     const sign = this.sign === other.sign ? 0 : -1;
 
     if (this.isOneish()) {
-      return Decimal.#construct(this.sys, sign, other.int, deci);
+      return Bignum.#construct(this.sys, sign, other.int, deci);
     }
     if (other.isOneish()) {
-      return Decimal.#construct(this.sys, sign, this.int, deci);
+      return Bignum.#construct(this.sys, sign, this.int, deci);
     }
-    return Decimal.#construct(this.sys, sign, Helper.multiply(this.sys, this.int, other.int), deci);
+    return Bignum.#construct(this.sys, sign, Helper.multiply(this.sys, this.int, other.int), deci);
   }
 
-  divideBy(other: Decimal, scale: number = 0): Decimal {
+  divideBy(other: Bignum, scale: number = 0): Bignum {
     if (other.isZero()) {
       throw new Error(`Divide by 0`);
     }
     if (this.isZero()) {
       return this;
     }
-    let thisDeci = this.deci;
-    let otherDeci = other.deci;
+    let thisDeci = this.scale;
+    let otherDeci = other.scale;
     while (thisDeci > 0 && otherDeci > 0) {
       --thisDeci;
       --otherDeci;
     }
-    let dividend: Decimal = this;
+    let dividend: Bignum = this;
     let divisor = other;
     if (otherDeci > 0) {
       const newIntArr = new Array(dividend.int.length + otherDeci).fill(0);
       Helper.arrayCopy(dividend.int, 0, newIntArr, otherDeci, dividend.int.length);
-      dividend = Decimal.#construct(dividend.sys, dividend.sign, newIntArr, thisDeci);
-      divisor = Decimal.#construct(divisor.sys, divisor.sign, divisor.int, 0);
-    } else if (thisDeci !== this.deci) {
-      dividend = Decimal.#construct(dividend.sys, dividend.sign, dividend.int, thisDeci);
-      divisor = Decimal.#construct(divisor.sys, divisor.sign, divisor.int, 0);
+      dividend = Bignum.#construct(dividend.sys, dividend.sign, newIntArr, thisDeci);
+      divisor = Bignum.#construct(divisor.sys, divisor.sign, divisor.int, 0);
+    } else if (thisDeci !== this.scale) {
+      dividend = Bignum.#construct(dividend.sys, dividend.sign, dividend.int, thisDeci);
+      divisor = Bignum.#construct(divisor.sys, divisor.sign, divisor.int, 0);
     }
 
     const system = dividend.sys;
     const sign = dividend.sign === divisor.sign ? 0 : -1;
     let intArr = dividend.int;
-    let deci = dividend.deci;
+    let deci = dividend.scale;
     if (scale < 0) {
       scale = 0;
     }
@@ -254,7 +254,7 @@ export class Decimal implements IDecimal {
     if (!divisor.isOneish()) {
       intArr = Helper.divideBy(system, intArr, divisor.int).quotient;
     }
-    return Decimal.#construct(
+    return Bignum.#construct(
       system,
       sign,
       Helper.shiftRight(intArr, scale > deci ? scale - deci : deci - scale),
@@ -262,14 +262,14 @@ export class Decimal implements IDecimal {
     );
   }
 
-  complement(length?: number): Decimal {
+  complement(length?: number): Bignum {
     if (!length || length <= 0) {
       length = this.int.length;
     }
-    return Decimal.#construct(this.sys, this.sign, Helper.complement(this.sys, this.int, length), this.deci);
+    return Bignum.#construct(this.sys, this.sign, Helper.complement(this.sys, this.int, length), this.scale);
   }
 
-  compareTo(other: Decimal): number {
+  compareTo(other: Bignum): number {
     this.validateSystem(other);
     if (this === other) {
       return 0;
@@ -280,10 +280,10 @@ export class Decimal implements IDecimal {
 
     let thisNum = this.int;
     let otherNum = other.int;
-    if (this.deci > other.deci) {
-      otherNum = Helper.shiftLeft(otherNum, this.deci - other.deci);
-    } else if (this.deci < other.deci) {
-      thisNum = Helper.shiftLeft(thisNum, other.deci - this.deci);
+    if (this.scale > other.scale) {
+      otherNum = Helper.shiftLeft(otherNum, this.scale - other.scale);
+    } else if (this.scale < other.scale) {
+      thisNum = Helper.shiftLeft(thisNum, other.scale - this.scale);
     }
 
     if (this.sign < 0) {
@@ -306,59 +306,59 @@ export class Decimal implements IDecimal {
     return other.sign >= 0 ? -1 : 0;
   }
 
-  equals(other: Decimal): boolean {
+  equals(other: Bignum): boolean {
     if (this === other) {
       return true;
     }
     if (!other) {
       return false;
     }
-    return this.sys.getBase() === other.sys.getBase() && this.deci === other.deci && this.compareTo(other) === 0;
+    return this.sys.getBase() === other.sys.getBase() && this.scale === other.scale && this.compareTo(other) === 0;
   }
 
-  round(scale: number = 0): Decimal {
+  round(scale: number = 0): Bignum {
     if (scale < 0) {
       scale = 0;
     }
-    if (this.deci <= scale) {
+    if (this.scale <= scale) {
       return this;
     }
-    const digit = this.int[this.deci - scale - 1];
-    let newIntArr = Helper.shiftRight(this.int, this.deci - scale);
+    const digit = this.int[this.scale - scale - 1];
+    let newIntArr = Helper.shiftRight(this.int, this.scale - scale);
     if ((this.sign >= 0 && digit >= this.sys.getBase() / 2) || (this.sign < 0 && digit > this.sys.getBase() / 2)) {
       newIntArr = Helper.add(this.sys, newIntArr, [1]);
     }
-    return Decimal.#construct(this.sys, this.sign, newIntArr, scale);
+    return Bignum.#construct(this.sys, this.sign, newIntArr, scale);
   }
 
-  floor(): Decimal {
+  floor(): Bignum {
     if (this.#isExact()) {
       return this;
     }
     if (this.sign < 0) {
-      const floor = Decimal.#construct(this.sys, -1, Helper.shiftRight(this.int, this.deci), 0);
-      return floor.add(Decimal.one(this.sys, -1));
+      const floor = Bignum.#construct(this.sys, -1, Helper.shiftRight(this.int, this.scale), 0);
+      return floor.add(Bignum.one(this.sys, -1));
     }
-    return Decimal.#construct(this.sys, this.sign, Helper.shiftRight(this.int, this.deci), 0);
+    return Bignum.#construct(this.sys, this.sign, Helper.shiftRight(this.int, this.scale), 0);
   }
 
-  ceil(): Decimal {
+  ceil(): Bignum {
     if (this.#isExact()) {
       return this;
     }
 
     if (this.sign >= 0) {
-      const floor = Decimal.#construct(this.sys, 0, Helper.shiftRight(this.int, this.deci), 0);
-      return floor.add(Decimal.one(this.sys));
+      const floor = Bignum.#construct(this.sys, 0, Helper.shiftRight(this.int, this.scale), 0);
+      return floor.add(Bignum.one(this.sys));
     }
-    return Decimal.#construct(this.sys, -1, Helper.shiftRight(this.int, this.deci), 0);
+    return Bignum.#construct(this.sys, -1, Helper.shiftRight(this.int, this.scale), 0);
   }
 
   #isExact(): boolean {
-    if (this.deci === 0) {
+    if (this.scale === 0) {
       return true;
     }
-    for (let i = 0; i < this.deci; ++i) {
+    for (let i = 0; i < this.scale; ++i) {
       if (this.int[i] !== 0) {
         return false;
       }
@@ -367,22 +367,22 @@ export class Decimal implements IDecimal {
   }
 
   getScale() {
-    return this.deci;
+    return this.scale;
   }
 
-  setScale(scale: number, ceiling = false): Decimal {
-    if (scale >= this.deci) {
+  setScale(scale: number, ceiling = false): Bignum {
+    if (scale >= this.scale) {
       return this;
     }
     if (scale < 0) {
       scale = 0;
     }
 
-    const diff = this.deci - scale;
+    const diff = this.scale - scale;
     let newIntArr = Helper.shiftRight(this.int, diff);
     if (ceiling) {
       newIntArr = Helper.add(this.sys, newIntArr, [1]);
     }
-    return Decimal.#construct(this.sys, this.sign, newIntArr, scale);
+    return Bignum.#construct(this.sys, this.sign, newIntArr, scale);
   }
 }

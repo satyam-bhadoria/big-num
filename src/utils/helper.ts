@@ -1,4 +1,4 @@
-import { IDecimal, INumeralSystem } from '../interfaces';
+import { IBignum, INumeralSystem } from '../interfaces';
 
 export class Helper {
   static arrayCopy(
@@ -57,15 +57,15 @@ export class Helper {
     return str;
   }
 
-  static addDecimal(num1: IDecimal, num2: IDecimal) {
-    let deci = num1.deci;
+  static addNumber(num1: IBignum, num2: IBignum) {
+    let deci = num1.scale;
     let intArr1 = num1.int;
     let intArr2 = num2.int;
-    if (deci < num2.deci) {
-      intArr1 = this.shiftLeft(intArr1, num2.deci - deci);
-      deci = num2.deci;
-    } else if (deci > num2.deci) {
-      intArr2 = this.shiftLeft(intArr2, deci - num2.deci);
+    if (deci < num2.scale) {
+      intArr1 = this.shiftLeft(intArr1, num2.scale - deci);
+      deci = num2.scale;
+    } else if (deci > num2.scale) {
+      intArr2 = this.shiftLeft(intArr2, deci - num2.scale);
     }
 
     const result = this.add(num1.sys, intArr1, intArr2);
@@ -75,15 +75,15 @@ export class Helper {
     };
   }
 
-  static subtractDecimal(num1: IDecimal, num2: IDecimal) {
-    let deci = num1.deci;
+  static subtractNumber(num1: IBignum, num2: IBignum) {
+    let deci = num1.scale;
     let intArr1 = num1.int;
     let intArr2 = num2.int;
-    if (deci < num2.deci) {
-      intArr1 = this.shiftLeft(intArr1, num2.deci - deci);
-      deci = num2.deci;
-    } else if (deci > num2.deci) {
-      intArr2 = this.shiftLeft(intArr2, deci - num2.deci);
+    if (deci < num2.scale) {
+      intArr1 = this.shiftLeft(intArr1, num2.scale - deci);
+      deci = num2.scale;
+    } else if (deci > num2.scale) {
+      intArr2 = this.shiftLeft(intArr2, deci - num2.scale);
     }
 
     const cmp = this.compareArray(intArr1, intArr2);

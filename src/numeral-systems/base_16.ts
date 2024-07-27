@@ -29,7 +29,7 @@ class NumeralSystem implements INumeralSystem {
   }
 
   getRadixPointChar(): string {
-    return ':';
+    return '.';
   }
 
   toDigit(ch: string): number {

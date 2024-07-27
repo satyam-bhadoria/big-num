@@ -1,3 +1,3 @@
 export * from './interfaces';
-export * from './decimal';
+export * from './bignum';
 export { NumeralSystem } from './numeral-systems';
