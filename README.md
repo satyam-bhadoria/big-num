@@ -1,4 +1,4 @@
-# Bignumbers
+# Big numbers
 
 This library handles the basic mathematics operation between 2 numbers. These numbers can be of large digits like 100 digits or can be 1 or 2 digit number.
 Number can be also be alpha numeric like base 16 or base 36 numbers. It also supports conversion from one numeral system to another.
@@ -7,17 +7,17 @@ Number can be also be alpha numeric like base 16 or base 36 numbers. It also sup
 
 ### NPM
 ```bash
-npm i bignumbers
+npm i big-num
 ```
 
 ### PNPM
 ```bash
-pnpm i bignumbers
+pnpm i big-num
 ```
 
 ### YARN
 ```bash
-yarn add bignumbers
+yarn add big-num
 ```
 
 ## Quick Start
@@ -25,21 +25,21 @@ yarn add bignumbers
 ### Import
 
 ```ts
-import { Decimal, NumeralSystem } from 'bignumbers'
+import { Bignum, NumeralSystem } from 'big-num';
 ```
 
 ### Usage
 
 ```ts
-const num1 = Decimal.parse('234.67', NumeralSystem.Base10);
-const num2 = Decimal.parse('42.077', NumeralSystem.Base10);
+const num1 = Bignum.parse('234.67', NumeralSystem.Base10);
+const num2 = Bignum.parse('42.077', NumeralSystem.Base10);
 
 const sum = num1.add(num2);
 
 console.log(sum.toString()); // 276.747
 ```
 
-*Note* Check [Decimal.md](Decimal.md) and [NumeralSystem.md](NumeralSystem.md) for more details
+*Note* Check [Bignum.md](Bignum.md) and [NumeralSystem.md](NumeralSystem.md) for more details
 
 ## Contributing
 

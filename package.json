@@ -1,9 +1,11 @@
 {
-  "name": "numerals",
+  "name": "big-num",
   "version": "1.0.0",
   "description": "",
   "files": [
-    "dist"
+    "dist",
+    "Bignum.md",
+    "NumeralSystem.md"
   ],
   "types": "dist/esm/index.d.ts",
   "module": "dist/esm/index.mjs",
@@ -25,14 +27,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/satyam-bhadoria/numerals.git"
+    "url": "git+https://github.com/satyam-bhadoria/big-num.git"
   },
   "author": "Satyam Bhadoria",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/satyam-bhadoria/numerals/issues"
+    "url": "https://github.com/satyam-bhadoria/big-num/issues"
   },
-  "homepage": "https://github.com/satyam-bhadoria/numerals#readme",
+  "homepage": "https://github.com/satyam-bhadoria/big-num#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.0",
     "@rollup/plugin-typescript": "^11.1.6",
