@@ -7,17 +7,17 @@ Number can be also be alpha numeric like base 16 or base 36 numbers. It also sup
 
 ### NPM
 ```bash
-npm i big-num
+npm i bignumeric
 ```
 
 ### PNPM
 ```bash
-pnpm i big-num
+pnpm i bignumeric
 ```
 
 ### YARN
 ```bash
-yarn add big-num
+yarn add bignumeric
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ yarn add big-num
 ### Import
 
 ```ts
-import { Bignum, NumeralSystem } from 'big-num';
+import { Bignum, NumeralSystem } from 'bignumeric';
 ```
 
 ### Usage

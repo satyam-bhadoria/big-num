@@ -1,5 +1,5 @@
 {
-  "name": "big-num",
+  "name": "bignumeric",
   "version": "1.0.0",
   "description": "Handles the basic mathematics operation between 2 numbers. It also support multiple numeral system like base 8, 10, 16 and 36",
   "files": [
@@ -27,14 +27,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/satyam-bhadoria/big-num.git"
+    "url": "git+https://github.com/satyam-bhadoria/bignumeric.git"
   },
   "author": "Satyam Bhadoria",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/satyam-bhadoria/big-num/issues"
+    "url": "https://github.com/satyam-bhadoria/bignumeric/issues"
   },
-  "homepage": "https://github.com/satyam-bhadoria/big-num#readme",
+  "homepage": "https://github.com/satyam-bhadoria/bignumeric#readme",
   "devDependencies": {
     "@eslint/js": "^10.0.0",
     "@rollup/plugin-typescript": "^11.1.6",
