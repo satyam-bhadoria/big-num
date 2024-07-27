@@ -9,7 +9,7 @@ This provides reference to multiple numeral system
 ## Usage
 
 ```ts
-import { NumeralSystem } from 'bignumbers';
+import { NumeralSystem } from 'big-num';
 
 const base10 = NumeralSystem.Base10;
 const base36 = NumeralSystem.Base36;

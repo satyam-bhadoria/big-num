@@ -294,7 +294,7 @@ const base10Num = Bignum.parse('83.03', NumeralSystem.Base10);
 
 const base36Num = base10Num.convertTo(NumeralSystem.Base36);
 
-console.log(base36Num.toString()); // 2b:12
+console.log(base36Num.toString()); // 2b.12
 ```
 
 ### validateSystem(otherNum)
@@ -492,7 +492,7 @@ const num3 = Bignum.parse('83.04', NumeralSystem.Base10);
 
 const res1 = num1.compareTo(num2);
 const res2 = num2.compareTo(num1);
-const res3 = num1.compareTo(num3);
+const res3 = num2.compareTo(num3);
 
 console.log(res1); // 1
 console.log(res2); // -1
@@ -576,7 +576,7 @@ const num1 = Bignum.parse('-45.05', NumeralSystem.Base10);
 const num2 = Bignum.parse('45.05', NumeralSystem.Base10);
 
 console.log(num1.floor().toString()); // -46
-console.log(num2.negate().toString()); // 45
+console.log(num2.floor().toString()); // 45
 ```
 
 ### ceil()
