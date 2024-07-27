@@ -71,10 +71,10 @@ export class Decimal implements IDecimal {
   }
 
   toString(): string {
-    return this.format();
+    return this.#format();
   }
 
-  format(): string {
+  #format(): string {
     if (this.isZero()) {
       return '' + this.sys.toChar(0);
     }
@@ -112,7 +112,7 @@ export class Decimal implements IDecimal {
     return this.isZero() ? this : Decimal.#construct(this.sys, this.sign >= 0 ? -1 : 0, this.int, this.deci);
   }
 
-  convertTo(toSys: INumeralSystem) {
+  convertTo(toSys: INumeralSystem): Decimal {
     if (this.sys.getBase() === toSys.getBase()) {
       return this;
     }
@@ -262,15 +262,15 @@ export class Decimal implements IDecimal {
     );
   }
 
-  complement(): Decimal {
-    return this.complementDigits(this.int.length);
-  }
-
-  complementDigits(length: number): Decimal {
+  complement(length?: number): Decimal {
+    if (!length || length <= 0) {
+      length = this.int.length;
+    }
     return Decimal.#construct(this.sys, this.sign, Helper.complement(this.sys, this.int, length), this.deci);
   }
 
   compareTo(other: Decimal): number {
+    this.validateSystem(other);
     if (this === other) {
       return 0;
     }
@@ -332,7 +332,7 @@ export class Decimal implements IDecimal {
   }
 
   floor(): Decimal {
-    if (this.isExact()) {
+    if (this.#isExact()) {
       return this;
     }
     if (this.sign < 0) {
@@ -343,7 +343,7 @@ export class Decimal implements IDecimal {
   }
 
   ceil(): Decimal {
-    if (this.isExact()) {
+    if (this.#isExact()) {
       return this;
     }
 
@@ -354,7 +354,7 @@ export class Decimal implements IDecimal {
     return Decimal.#construct(this.sys, -1, Helper.shiftRight(this.int, this.deci), 0);
   }
 
-  isExact(): boolean {
+  #isExact(): boolean {
     if (this.deci === 0) {
       return true;
     }
@@ -370,19 +370,19 @@ export class Decimal implements IDecimal {
     return this.deci;
   }
 
-  setScale(newDeci: number, ceiling = false): Decimal {
-    if (newDeci >= this.deci) {
+  setScale(scale: number, ceiling = false): Decimal {
+    if (scale >= this.deci) {
       return this;
     }
-    if (newDeci < 0) {
-      newDeci = 0;
+    if (scale < 0) {
+      scale = 0;
     }
 
-    const diff = this.deci - newDeci;
+    const diff = this.deci - scale;
     let newIntArr = Helper.shiftRight(this.int, diff);
     if (ceiling) {
       newIntArr = Helper.add(this.sys, newIntArr, [1]);
     }
-    return Decimal.#construct(this.sys, this.sign, newIntArr, newDeci);
+    return Decimal.#construct(this.sys, this.sign, newIntArr, scale);
   }
 }

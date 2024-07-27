@@ -15,7 +15,7 @@ const getNumeralSystem = (system: string): INumeralSystem => {
     case '36':
       return NumeralSystem36;
   }
-  throw new Error(`Valid numeral system are: '10', '16', '36'`);
+  throw new Error(`Valid numeral system are: '8', '10', '16', '36'`);
 };
 
 const NumeralSystem = {

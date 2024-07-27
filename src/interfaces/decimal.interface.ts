@@ -7,7 +7,6 @@ export interface IDecimal {
   deci: number;
 
   toString(): string;
-  format(): string;
   isZero(): boolean;
   isOne(): boolean;
   isOneish(): boolean;
@@ -18,14 +17,12 @@ export interface IDecimal {
   subtract(other: IDecimal): IDecimal;
   multiply(other: IDecimal): IDecimal;
   divideBy(other: IDecimal, scale?: number): IDecimal;
-  complement(): IDecimal;
-  complementDigits(length: number): IDecimal;
+  complement(length: number): IDecimal;
   compareTo(other: IDecimal): number;
   equals(other: IDecimal): boolean;
   round(scale?: number): IDecimal;
   floor(): IDecimal;
   ceil(): IDecimal;
-  isExact(): boolean;
   getScale(): number;
-  setScale(newDeci: number, ceiling?: boolean): IDecimal;
+  setScale(scale: number, ceiling?: boolean): IDecimal;
 }
